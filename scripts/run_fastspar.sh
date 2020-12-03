@@ -30,7 +30,7 @@ fastspar -i 5 --threads 1 -y --otu_table $item --correlation bootstrap_correlati
 done
 
 # STEP 3: run fastspar
-fastspar -y --threads 10 --otu_table $input_file --correlation median_correlation.tsv --covariance median_covariance.tsv 
+fastspar -y --threads 10 --otu_table $input_file --correlation median_correlation.tsv --covariance median_covariance.tsv --iterations 5 
 
 # STEP 4: fastspar pvalues (pvalues are calculated from the correlations)
-fastspar_pvalues --otu_table $input_file --correlation median_correlation.tsv --prefix bootstrap_correlation/cor_data_ --permutations 1000 --outfile pvalues.tsv
+fastspar_pvalues --threads 10 --otu_table $input_file --correlation median_correlation.tsv --prefix bootstrap_correlation/cor_ --permutations 1000 --outfile pvalues.tsv
