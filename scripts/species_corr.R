@@ -156,7 +156,7 @@ for (single_DF in multiple_DFs) {
   # correlation is computed for subjects with more than 1 time point (obviously)
   if ( NROW(unique(single_DF$date)) > 1 ) {
     
-    single_DF <- as.data.frame(single_DF)
+    single_DF <- as.data.frame(multiple_DFs[1])
     colnames(single_DF) <- c("pig","gOTU","date","norm_value")
     
     pigID <- unique(single_DF$pig)

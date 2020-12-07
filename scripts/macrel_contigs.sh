@@ -7,7 +7,7 @@
 
 #!/bin/bash
 #PBS -l ncpus=10
-#PBS -l walltime=72:00:00
+#PBS -l walltime=120:00:00
 #PBS -l mem=40g
 #PBS -N macrel_contigs
 #PBS -M daniela.gaio@student.uts.edu.au
@@ -20,3 +20,7 @@ macrel contigs \
     --fasta $input_file \
     --output $out_dir \
     -t 8
+    
+    
+# 72 walltime hours killed it so increased it to 120h
+
