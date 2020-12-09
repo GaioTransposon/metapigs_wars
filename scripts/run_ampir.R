@@ -15,12 +15,12 @@ out_dir = "/shared/homes/12705859/ampir/"
 # produced from `head all_concatenated_AA_noAsteriks.faa -n 20000 > mini_noAsteriks.faa`
 
 # read in input:
-my_protein_df <- read_faa(file = paste0(input_file_dir,"mini_noAsteriks.faa"))    
+my_protein_df <- read_faa(file = paste0(input_file_dir,"mini1"))    
 # when testing on mini dataset:
 #my_protein_df <- read_faa(file = paste0(input_file_dir,"all_concatenated_AA_noAsteriks.faa")) 
 
 # Calculate the probability that each protein is an antimicrobial peptide with predict_amps(). 
-my_prediction <- predict_amps(my_protein_df, model = "precursor")
+my_prediction <- predict_amps(my_protein_df, model = "precursor", n_cores=8)
 
 # Predicted proteins with a specified predicted probability value could then be extracted and written to a FASTA file:
 my_predicted_amps <- my_protein_df[which(my_prediction$prob_AMP >= 0.8),]
