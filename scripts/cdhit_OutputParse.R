@@ -18,8 +18,8 @@ library(utils)
 library(splitstackshape)
 
 
-#cdhit.dir = "/shared/homes/12705859/cdhit_work/cd_hit_onAss" # on HPC
-cdhit.dir = "/Users/12705859/Desktop" # on local
+cdhit.dir = "/shared/homes/12705859/cdhit_work/cd_hit_onAss" # on HPC
+#cdhit.dir = "/Users/12705859/Desktop" # on local
 
 
 raw_clustering_files = list.files(cdhit.dir, pattern=".clstr")
@@ -28,7 +28,8 @@ for (clstr in raw_clustering_files) {
   clstr1 <- read.csv(file.path(cdhit.dir,clstr), sep = "\t", 
                      row.names = NULL, header = FALSE, stringsAsFactors = FALSE)
   
-  
+  clstr1$V2
+  #View(clstr1)
   clstr2 <- clstr1
   n = nrow(clstr1)
   x = 0
@@ -41,29 +42,33 @@ for (clstr in raw_clustering_files) {
   }
   
   clstr.sums <- data.frame(dplyr::count(clstr2,V1))
+  head(clstr.sums)
   
   switch <- clstr.sums[1,2]
   clstr3 <- cbind(clstr2[1], clstr1)
   
-  clstr3[c((switch-5):(switch+5)),]
+  #clstr3[c((switch-5):(switch+5)),]
   
   clstr4 <- clstr2[-which(clstr2$V2 == ""), ]
-  clstr4[c(1:5,(switch-5):(switch+5)),]
+  #clstr4[c(1:5,(switch-5):(switch+5)),]
   
   clstr5 <- clstr4
   clstr5[] <- lapply(clstr5, gsub, pattern='>', replacement='')
   clstr5.2 <- data.frame(str_split_fixed(clstr5$V2, "aa, ", 2))
   clstr5.3 <- data.frame(str_split_fixed(clstr5.2$X2, "... ", 2))
   clstr6 <- cbind(clstr5[1],clstr5.2[1],clstr5.3[1:2])
-  colnames(clstr6) <- c("cluster","aa","gene","stat")
+  colnames(clstr6) <- c("cluster","aa_length","gene","identity_perc")
   
-  
-  # split column "gene" 
+  # split column "gene" & rename cols
   clstr7 <- cSplit(clstr6, "gene", "_")
+  colnames(clstr7)[colnames(clstr7)=="gene_1"] <- "pig"
+  clstr7$contig <- paste0(clstr7$gene_2,"_",clstr7$gene_3)
+  colnames(clstr7)[colnames(clstr7)=="gene_4"] <- "ORF_number"
+
+  clstr7 <- clstr7 %>% 
+    dplyr::select(cluster,aa_length,pig,contig,ORF_number,identity_perc)
   
-  # rename cols
-  colnames(clstr7) <- c("cluster","aa_length","identity_perc","pig","bin","contig")
-  
+
   clstr7$identity_perc <- gsub( "at", "", clstr7$identity_perc)
   clstr7$identity_perc <- gsub( " ", "", clstr7$identity_perc)
   clstr7$identity_perc <- gsub( "%", "", clstr7$identity_perc)

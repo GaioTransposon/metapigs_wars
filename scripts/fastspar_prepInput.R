@@ -89,29 +89,51 @@ df1 <- df0
 df2 <- df1 %>%
   group_by(pig,`#OTU ID`,date) %>%
   dplyr::summarize(sum_value = sum(value)) 
-head(df2)
-
-
 
 z <- df2 %>% 
   dplyr::select(sum_value,`#OTU ID`,pig,date)
-
 
 z$sample <- paste0(z$date,"_",z$pig)
 
 z <- as.data.frame(z)
 
+#### prep separate input for fastspar for each pigID 
+# splitting into multiple dataframes (by pigID)
+multiple_DFs <- split( z , f = z$pig, drop = TRUE)
+
+for (single_DF in multiple_DFs) {
+  
+  if ( NROW(unique(single_DF$date)) > 1 ) {
+    
+    single_DF <- as.data.frame(single_DF)
+    pigID <- unique(single_DF$pig)
+    
+    print(pigID)
+    print(NROW(unique(single_DF$date)))
+    
+    DF <- single_DF %>% 
+      dplyr::select(sum_value,`#OTU ID`,sample) %>% 
+      dplyr::mutate(sum_value=round(sum_value)) %>% 
+      pivot_wider(names_from=sample, values_from=sum_value, values_fill=0)
+    
+    write.table(x = DF, file = paste0("~/Desktop/metapigs_wars/fastsparGTDB_in_",pigID,".txt"), row.names = FALSE, quote = FALSE, sep = '\t')
+    
+  } else {
+    print("this pig has a single time point and is therefore excluded")
+  }
+
+}
+####
+
+# continue preparing the complete (all pigIDs) fastspar input
 
 z <- z %>% 
   dplyr::select(sum_value,`#OTU ID`,sample) %>% 
-  dplyr::mutate(sum_value=round(sum_value)) %>% 
+  dplyr::mutate(sum_value=round(sum_value)) 
+
+z1 <- z %>% 
   pivot_wider(names_from=sample, values_from=sum_value, values_fill=0)
 
 
-
-z$`#OTU ID`
-colnames(z)
-
-write.table(x = z, file = "~/Desktop/metapigs_wars/fastsparGTDB_in.txt", row.names = FALSE, quote = FALSE, sep = '\t')
-colnames(fastspar_Mothers_in)
+write.table(x = z1, file = "~/Desktop/metapigs_wars/fastsparGTDB_all_in.txt", row.names = FALSE, quote = FALSE, sep = '\t')
 

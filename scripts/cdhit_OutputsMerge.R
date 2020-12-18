@@ -17,8 +17,9 @@ library(stringr)
 library(utils)
 library(splitstackshape)
 
-#cdhit.dir = "/shared/homes/12705859/cdhit_work/cd_hit_onAss" # on HPC
-cdhit.dir = "/Users/12705859/Desktop" # on local
+
+cdhit.dir = "/shared/homes/12705859/cdhit_work/cd_hit_onAss" # on HPC
+#cdhit.dir = "/Users/12705859/Desktop" # on local
 
 clustering_files = list.files(cdhit.dir, pattern="contig_amp_clustering_")
 
@@ -37,8 +38,8 @@ contigs_all_clusters <- Reduce(full_join, mylist)
 
 # move some columns ahead 
 contigs_all_clusters <- contigs_all_clusters %>%
+  dplyr::select(ORF_number, everything()) %>%
   dplyr::select(contig, everything()) %>%
-  dplyr::select(bin, everything()) %>%
   dplyr::select(pig, everything()) 
 
 
