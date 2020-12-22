@@ -19,30 +19,29 @@ df <- read.csv(file = file.path(corr.dir,"corr_pvalues_long_concat"), sep = ",",
                row.names = NULL, header = TRUE, stringsAsFactors = FALSE)
 
 head(df)
-# tail(df)
-# NROW(df)
-# 
-# df1 <- df %>% 
+tail(df)
+NROW(df)
+
+# ## produce some stats about the correlations:
+# df1 <- df %>%
 #   dplyr::filter(pvalue<0.05)
-# 
 # NROW(df1)
 # 
-# df2 <- df1 %>% 
-#   dplyr::filter(pvalue<0.01)
+# df2 <- df1 %>%
+#   dplyr::filter(pvalue<=0.01)
 # NROW(df2)
-# View(df2)
 # 
-# df2$interaction <- paste0(df2$speciesA,df2$speciesB)
-# 
-# df3 <- df2 %>%
+# df1$interaction <- paste0(df1$speciesA,df1$speciesB)
+# df3 <- df1 %>%
 #   group_by(interaction) %>%
 #   dplyr::summarise(mean=mean(median_corr),
 #                    sd=sd(median_corr),
-#                    n=n()) 
+#                    n=n()) %>%
+#   dplyr::arrange(desc(n))
+# head(df3)
+# NROW(df3)
 
-
-
-
+#######
 
 pig <- c(14159, 14159, 14159, 14159, 29951, 29951, 29951, 29951)
 contig <- c(265, 327465, 126, 84560, 345867, 8254782, 837, 0239875)
@@ -56,21 +55,32 @@ amp.data$pig_species <- paste0(amp.data$pig,".",amp.data$species)
 
 amp.data_sub <- amp.data %>% 
   dplyr::select(pig_species, cluster100)
-
+class(amp.data_sub)
 si <- unique(amp.data_sub)
 amp.data.binary <- dcast(si, formula = pig_species ~ cluster100, fun.aggregate = length)
 
-# split column "pig_species" using _ separator
-amp.data.binary <- cSplit(amp.data.binary, "pig_species", ".")
+
+# remove columns which colSums==1
+clusters1<- amp.data.binary[,2:ncol(amp.data.binary)]
+NCOL(clusters1)
+clusters1 <- clusters1[,-(which(colSums(clusters1)<2))]
+NCOL(clusters1)
+colSums(clusters1)
+
+amp.data.binary2 <- cbind(amp.data.binary$pig_species,clusters1)
+names(amp.data.binary2)[names(amp.data.binary2) == 'amp.data.binary$pig_species'] <- 'pig_species'
+
+# split column 
+amp.data.binary2 <- cSplit(amp.data.binary2, "pig_species", ".")
 
 # move last two cols ahead
-amp.data.binary <- amp.data.binary %>%
+amp.data.binary3 <- amp.data.binary2 %>%
   dplyr::select(pig_species_1, pig_species_2, everything()) 
+names(amp.data.binary3)[names(amp.data.binary3) == 'pig_species_1'] <- 'pig'
+names(amp.data.binary3)[names(amp.data.binary3) == 'pig_species_2'] <- 'species'
 
-amp.data.binary <- dplyr::rename(amp.data.binary, pig = pig_species_1)
-amp.data.binary <- dplyr::rename(amp.data.binary, species = pig_species_2)
 
-head(amp.data.binary)
+head(amp.data.binary3)
 
 
 
@@ -136,13 +146,13 @@ for (single_DF in multiple_DFs) {
   species <- unique(single$speciesB)
   
   # columns with binary data
-  clusters <- single[ , grepl( "cluster" , names( single ) ) ]
+  clusterss <- single[ , grepl( "cluster" , names( single ) ) ]
   the_rest <- single[ , !grepl( "cluster" , names( single ) ) ]
   
   # remove columns that contain only 0s (otherwise wilcox will give problems cause it won't find two groups to compare)
-  clusters <- clusters[colSums(clusters) != 0]
+  clusterss <- clusterss[colSums(clusterss) != 0]
   
-  all_clean <- cbind(the_rest,clusters)
+  all_clean <- cbind(the_rest,clusterss)
   
   # apply independent 2-group Mann-Whitney U Test (designed to work with a continuos vs binary variable):
   res <- lapply(all_clean[ , grepl( "cluster" , names( all_clean ) ) ],
