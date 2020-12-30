@@ -8,6 +8,12 @@ install.packages("splitstackshape", repos = "http://cran.us.r-project.org")
 install.packages("readr", repos = "http://cran.us.r-project.org")
 install.packages("reshape2", repos = "http://cran.us.r-project.org")
 install.packages("tidyr", repos = "http://cran.us.r-project.org")
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+install.packages("EnvStats", repos = "http://cran.us.r-project.org")
+install.packages("ggpubr", repos = "http://cran.us.r-project.org")
+install.packages("patchwork", repos = "http://cran.us.r-project.org")
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+
 
 rm(list = ls())
 
@@ -49,12 +55,6 @@ NROW(res_out)
 res_signif <- res_out %>% 
   dplyr::filter(value<0.05)
 NROW(res_signif)
-
-# pp %>%
-#   group_by(`Cluster 15993`) %>%
-#   summarise(Unique_speciesA = n_distinct(speciesA),
-#             Unique_pigs = n_distinct(pig))
-
 
 # empty df when just one cluster 
 res4 <- data.frame(value=double(),
@@ -117,7 +117,7 @@ for (A in rownames(res6)) {
   
   check[,7] <- as.factor(check[,7])
 
-  NROW(unique(check$speciesA))
+  #NROW(unique(check$speciesA))
   
   bottom_plot <- check %>%
     ggplot(., aes(x=fct_reorder(pig,as.numeric(check[,7])),y=median_corr,color=check[,7]))+
