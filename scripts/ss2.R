@@ -64,13 +64,13 @@ corr_data3 <- subset(corr_data2, speciesAspeciesB %in% keep$speciesAspeciesB )
 NROW(corr_data3)
 
 corr_data3$speciesAspeciesB <- NULL
-  
+
 # split df by both
 multiple_DFs <- split(corr_data3, list(corr_data3$speciesB, corr_data3$speciesA), drop = TRUE)
 NROW(multiple_DFs)
 
-multiple_DFs1 <- multiple_DFs[1:129102]
-#multiple_DFs2 <- multiple_DFs[129103:NROW(multiple_DFs)]
+#multiple_DFs1 <- multiple_DFs[1:129102]
+multiple_DFs2 <- multiple_DFs[129103:NROW(multiple_DFs)]
 
 
 myfun <- function(x) {
@@ -160,6 +160,6 @@ myfun <- function(x) {
 }
 
 cores_to_use <- detectCores()-1
-ss1 <- mclapply(multiple_DFs1, myfun, mc.cores = cores_to_use)
+ss2 <- mclapply(multiple_DFs2, myfun, mc.cores = cores_to_use)
 
-saveRDS(ss1, file = file.path(macrel.dir,"ss1.rds"))
+saveRDS(ss2, file = file.path(macrel.dir,"ss2.rds"))
